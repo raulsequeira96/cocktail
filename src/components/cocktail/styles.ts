@@ -57,17 +57,17 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     appToolbar: {
       display: 'grid',
-      gridTemplateColumns: 'minmax(280px, 1fr) minmax(260px, 430px) minmax(90px, 1fr)',
+      gridTemplateColumns: 'minmax(280px, 1fr) minmax(280px, 480px) minmax(170px, 1fr)',
       alignItems: 'center',
       columnGap: theme.spacing(1.5),
       minHeight: 72,
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
       [theme.breakpoints.down('lg')]: {
-        gridTemplateColumns: 'minmax(240px, 1fr) minmax(240px, 390px) minmax(78px, 1fr)',
+        gridTemplateColumns: 'minmax(240px, 1fr) minmax(240px, 420px) minmax(138px, 1fr)',
       },
       [theme.breakpoints.down('md')]: {
-        gridTemplateColumns: 'minmax(210px, 1fr) minmax(220px, 340px) minmax(70px, 1fr)',
+        gridTemplateColumns: 'minmax(210px, 1fr) minmax(220px, 360px) minmax(126px, 1fr)',
       },
       [theme.breakpoints.down('sm')]: {
         minHeight: 64,
@@ -108,6 +108,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'flex-end',
       alignItems: 'center',
+      gap: theme.spacing(1),
+      [theme.breakpoints.down('md')]: {
+        gap: theme.spacing(0.75),
+      },
     },
     title: {
       display: 'none',
@@ -125,10 +129,11 @@ export const useStyles = makeStyles((theme: Theme) =>
         fontSize: '1.2rem',
       },
     },
-    search: {
+    searchPanel: {
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
+      gap: theme.spacing(1),
       borderRadius: 999,
       border: `1px solid ${alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.2 : 0.18)}`,
       backgroundColor:
@@ -143,7 +148,41 @@ export const useStyles = makeStyles((theme: Theme) =>
             : alpha(theme.palette.common.white, 0.9),
       },
       width: '100%',
-      maxWidth: 420,
+      maxWidth: 480,
+      padding: theme.spacing(0.45, 0.65),
+      [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        borderRadius: 16,
+        gap: theme.spacing(0.5),
+      },
+    },
+    filterControl: {
+      minWidth: 124,
+      '& .MuiInputLabel-root': {
+        color: alpha(theme.palette.text.primary, 0.72),
+      },
+      '& .MuiOutlinedInput-root': {
+        borderRadius: 999,
+        backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.22 : 0.58),
+        '& fieldset': {
+          borderColor: alpha(theme.palette.text.primary, 0.22),
+        },
+        '&:hover fieldset': {
+          borderColor: alpha(theme.palette.text.primary, 0.32),
+        },
+      },
+      '& .MuiSelect-select': {
+        paddingTop: 8,
+        paddingBottom: 8,
+      },
+      [theme.breakpoints.down('sm')]: {
+        width: '100%',
+      },
+    },
+    searchInput: {
+      flex: 1,
+      minWidth: 0,
     },
     inputRoot: {
       color: 'inherit',
@@ -227,6 +266,37 @@ export const useStyles = makeStyles((theme: Theme) =>
           theme.palette.mode === 'dark'
             ? alpha(theme.palette.common.white, 0.16)
             : alpha(theme.palette.common.white, 0.92),
+      },
+    },
+    surpriseButton: {
+      borderRadius: 999,
+      textTransform: 'none',
+      fontWeight: 700,
+      borderColor: alpha(theme.palette.text.primary, 0.2),
+      color: theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.text.primary,
+      backgroundColor:
+        theme.palette.mode === 'dark'
+          ? alpha(theme.palette.common.black, 0.16)
+          : alpha(theme.palette.common.white, 0.6),
+      '&:hover': {
+        borderColor: alpha(theme.palette.text.primary, 0.32),
+        backgroundColor:
+          theme.palette.mode === 'dark'
+            ? alpha(theme.palette.common.white, 0.12)
+            : alpha(theme.palette.common.white, 0.88),
+      },
+      [theme.breakpoints.down('md')]: {
+        minWidth: 0,
+        paddingLeft: theme.spacing(1.1),
+        paddingRight: theme.spacing(1.1),
+        '& .MuiButton-startIcon': {
+          marginRight: 0,
+        },
+      },
+    },
+    surpriseLabel: {
+      [theme.breakpoints.down('md')]: {
+        display: 'none',
       },
     },
     nested: {

@@ -1,9 +1,10 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { CocktailCard } from './cocktail-card/CocktailCard';
 import Grid from '@mui/material/Grid';
 import { Skill } from '../../interfaces/cocktailInterfaces';
-import { Box, Card, CardActionArea, CardActions, CardContent, Grow, Paper, Skeleton, Typography } from '@mui/material';
+import { Box, Button, Card, CardActionArea, CardActions, CardContent, Chip, Grow, Paper, Skeleton, Snackbar, Stack, Typography } from '@mui/material';
 import CardImage from './cocktail-card/CardImage';
 import Cardtitle from './cocktail-card/Cardtitle';
 import CardButton from './cocktail-card/CardButton';
@@ -13,10 +14,70 @@ interface CocktailCatalogProps {
   isLoading?: boolean;
 }
 
+const FAVORITES_STORAGE_KEY = 'cocktail-studio-favorites';
+const PAGE_SIZE = 8;
+
 const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
   const cocktails: Skill[] = useSelector((state: RootState) => state.cocktail.cocktailsSearch);
   const classes = useStyles();
-  const visibleCocktails = (cocktails || []).filter((cocktail) => Number(cocktail.id) !== -1);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>(() => {
+    try {
+      const storageValue = localStorage.getItem(FAVORITES_STORAGE_KEY);
+      return storageValue ? JSON.parse(storageValue) : [];
+    } catch (error) {
+      return [];
+    }
+  });
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [shareMessage, setShareMessage] = useState('');
+
+  const visibleCocktails = useMemo(
+    () => (cocktails || []).filter((cocktail) => Number(cocktail.id) !== -1),
+    [cocktails],
+  );
+  const favoritesSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+  const cocktailsToRender = useMemo(
+    () => (showFavoritesOnly ? visibleCocktails.filter((cocktail) => favoritesSet.has(cocktail.id)) : visibleCocktails),
+    [showFavoritesOnly, visibleCocktails, favoritesSet],
+  );
+  const pagedCocktails = cocktailsToRender.slice(0, visibleCount);
+  const canLoadMore = visibleCount < cocktailsToRender.length;
+
+  useEffect(() => {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteIds));
+  }, [favoriteIds]);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [cocktailsToRender.length]);
+
+  const handleToggleFavorite = (skill: Skill) => {
+    setFavoriteIds((prevIds) => (prevIds.includes(skill.id)
+      ? prevIds.filter((id) => id !== skill.id)
+      : [...prevIds, skill.id]));
+  };
+
+  const handleShare = async (skill: Skill) => {
+    const shareText = `${skill.title} - ${skill.category}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: skill.title,
+          text: `${shareText}\n${skill.description}`,
+          url: window.location.href,
+        });
+        setShareMessage('Cocktail compartido.');
+        return;
+      }
+
+      await navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
+      setShareMessage('Enlace copiado al portapapeles.');
+    } catch (error) {
+      setShareMessage('No se pudo compartir este cocktail.');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -39,7 +100,7 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
     );
   }
 
-  if (!visibleCocktails.length) {
+  if (!cocktailsToRender.length) {
     return (
       <Paper
         elevation={0}
@@ -52,19 +113,42 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-          No hay resultados para esa busqueda
+          {showFavoritesOnly ? 'No tenes favoritos guardados' : 'No hay resultados para esa busqueda'}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Proba con otro termino o elegi una categoria desde el menu lateral.
+          {showFavoritesOnly
+            ? 'Marca cocktails con el icono de corazon para verlos aca.'
+            : 'Proba con otro termino o elegi una categoria desde el menu lateral.'}
         </Typography>
+        {showFavoritesOnly && (
+          <Button
+            variant="outlined"
+            sx={{ mt: 2 }}
+            onClick={() => setShowFavoritesOnly(false)}
+          >
+            Ver todos
+          </Button>
+        )}
       </Paper>
     );
   }
 
   return (
     <Box>
+      <Stack direction="row" spacing={1} sx={{ mb: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="body2" color="text.secondary">
+          Mostrando {pagedCocktails.length} de {cocktailsToRender.length} cocktails
+        </Typography>
+        <Chip
+          clickable
+          color={showFavoritesOnly ? 'primary' : 'default'}
+          variant={showFavoritesOnly ? 'filled' : 'outlined'}
+          label={showFavoritesOnly ? 'Mostrando favoritos' : 'Solo favoritos'}
+          onClick={() => setShowFavoritesOnly((prev) => !prev)}
+        />
+      </Stack>
       <Grid container spacing={{ xs: 2, md: 3 }}>
-        {visibleCocktails.map((cocktail, index) => (
+        {pagedCocktails.map((cocktail, index) => (
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={cocktail.id}>
             <Grow in timeout={380 + index * 70}>
               <Box>
@@ -77,7 +161,11 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
                       </CardContent>
                     </CardActionArea>
                     <CardActions sx={{ mt: 'auto', px: 2, pb: 2 }}>
-                      <CardButton />
+                      <CardButton
+                        isFavorite={favoritesSet.has(cocktail.id)}
+                        onToggleFavorite={handleToggleFavorite}
+                        onShare={handleShare}
+                      />
                     </CardActions>
                   </Card>
                 </CocktailCard>
@@ -86,6 +174,19 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
           </Grid>
         ))}
       </Grid>
+      {canLoadMore && (
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+          <Button variant="outlined" onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}>
+            Cargar mas
+          </Button>
+        </Box>
+      )}
+      <Snackbar
+        open={Boolean(shareMessage)}
+        autoHideDuration={2200}
+        onClose={() => setShareMessage('')}
+        message={shareMessage}
+      />
     </Box>
   );
 };

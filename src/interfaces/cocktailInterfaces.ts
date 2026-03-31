@@ -6,8 +6,23 @@ export interface Skill {
   price: number,
   category: string,
   description: string,
-  image: string
+  image: string,
+  alcoholic?: string,
+  glass?: string,
+  iba?: string,
+  tags?: string[],
+  ingredients?: string[],
+  ingredientItems?: IngredientItem[]
 }
+
+export interface IngredientItem {
+  name: string;
+  measure?: string;
+  thumbnail: string;
+  display: string;
+}
+
+export type AlcoholFilter = 'all' | 'alcoholic' | 'non_alcoholic';
 
 export interface CocktailSkill {
   cocktails: Skill[] | [],
@@ -15,6 +30,8 @@ export interface CocktailSkill {
   categories: Category | {}
   sections: SubmenuState
   dialog: DialogDetails
+  searchTerm: string
+  alcoholFilter: AlcoholFilter
 }
 
 export interface DialogDetails{

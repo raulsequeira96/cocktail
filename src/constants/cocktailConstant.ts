@@ -14,7 +14,13 @@ export const INITIAL_STATE_SKILL_CTX: CocktailCardContextProps = {
     price: -1,
     category: "",
     description: "",
-    image: ""
+    image: "",
+    alcoholic: "",
+    glass: "",
+    iba: "",
+    tags: [],
+    ingredients: [],
+    ingredientItems: []
   },
   handleDetailsCocktail: (skill: Skill) => { }
 }
@@ -24,6 +30,7 @@ export const SET_SKILL_COCKTAIL = "setSkill";
 export const SET_ALL_SKILL_COCKTAIL = "setAllSkill";
 export const SET_ALL_CATEGORY_COCKTAIL = "setAllCategory";
 export const SET_ALL_SKILL_SEARCH = "setAllSkillSearch";
+export const SET_ALCOHOL_FILTER = "setAlcoholFilter";
 export const RESET_COCKTAIL_STATE = "reset";
 export const SET_DIALOG_DETAILS = "setDialogCocktailDetails";
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box, Container, Fade, Stack, Typography } from '@mui/material';
 import type { PaletteMode } from '@mui/material/styles';
 import { CocktailBar } from './CocktailBar';
@@ -18,12 +18,21 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadCocktails = useCallback(async (uri?: string) => {
+    setIsLoading(true);
+    try {
+      await dispatch(fetchDataCocktail(uri));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dispatch]);
+
   useEffect(() => {
     let isMounted = true;
 
     const execute = async () => {
       try {
-        await dispatch(fetchDataCocktail());
+        await loadCocktails();
         await dispatch(addCategory());
       } finally {
         if (isMounted) {
@@ -37,11 +46,15 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
     return () => {
       isMounted = false;
     };
-  }, [dispatch]);
+  }, [dispatch, loadCocktails]);
+
+  const handleSurprise = async () => {
+    await loadCocktails();
+  };
 
   return (
     <>
-      <CocktailBar mode={mode} onToggleTheme={onToggleTheme} />
+      <CocktailBar mode={mode} onToggleTheme={onToggleTheme} onSurprise={handleSurprise} isLoading={isLoading} />
       <Box className={classes.appShell}>
         <Container maxWidth="xl" className={classes.contentContainer}>
           <Fade in timeout={550}>

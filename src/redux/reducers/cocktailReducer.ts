@@ -1,6 +1,31 @@
-import { RESET_COCKTAIL_STATE, SET_ALL_CATEGORY_COCKTAIL, SET_ALL_SKILL_COCKTAIL, SET_ALL_SKILL_SEARCH, SET_DIALOG_DETAILS, SET_SKILL_COCKTAIL } from "../../constants/cocktailConstant";
-import { CocktailSkill } from "../../interfaces/cocktailInterfaces";
+import {
+  RESET_COCKTAIL_STATE,
+  SET_ALCOHOL_FILTER,
+  SET_ALL_CATEGORY_COCKTAIL,
+  SET_ALL_SKILL_COCKTAIL,
+  SET_ALL_SKILL_SEARCH,
+  SET_DIALOG_DETAILS,
+  SET_SKILL_COCKTAIL,
+} from "../../constants/cocktailConstant";
+import { AlcoholFilter, CocktailSkill, Skill } from "../../interfaces/cocktailInterfaces";
 import { CocktailAction } from "../actions/cocktailActions"
+
+const applyFilters = (cocktails: Skill[], searchTerm: string, alcoholFilter: AlcoholFilter): Skill[] => {
+  const searchValue = searchTerm.trim().toLowerCase();
+
+  return cocktails.filter((cocktail) => {
+    const matchesSearch = !searchValue || cocktail.title.toLowerCase().includes(searchValue);
+    const alcoholicValue = (cocktail.alcoholic || '').toLowerCase();
+    const matchesAlcohol =
+      alcoholFilter === 'all'
+        ? true
+        : alcoholFilter === 'alcoholic'
+          ? alcoholicValue.includes('alcoholic') && !alcoholicValue.includes('non')
+          : alcoholicValue.includes('non');
+
+    return matchesSearch && matchesAlcohol;
+  });
+};
 
 const initialState: CocktailSkill = {
   cocktails: [],
@@ -8,6 +33,8 @@ const initialState: CocktailSkill = {
   categories: {},
   sections: {},
   dialog: { open: false },
+  searchTerm: '',
+  alcoholFilter: 'all',
 };
 
 export const cocktailReducer = (state: CocktailSkill = initialState, action: CocktailAction): CocktailSkill => {
@@ -23,14 +50,19 @@ export const cocktailReducer = (state: CocktailSkill = initialState, action: Coc
       return {
         ...state,
         cocktails: payload.value,
-        cocktailsSearch: payload.value
+        cocktailsSearch: applyFilters(payload.value, state.searchTerm, state.alcoholFilter)
       }
     case SET_ALL_SKILL_SEARCH:
       return {
         ...state,
-        cocktailsSearch: cocktails && payload.value
-          ? cocktails.filter((c) => c.title.toLowerCase().includes(payload.value.toLowerCase()))
-          : cocktails
+        searchTerm: payload.value,
+        cocktailsSearch: applyFilters(cocktails, payload.value, state.alcoholFilter)
+      }
+    case SET_ALCOHOL_FILTER:
+      return {
+        ...state,
+        alcoholFilter: payload.value,
+        cocktailsSearch: applyFilters(cocktails, state.searchTerm, payload.value)
       }
     case SET_ALL_CATEGORY_COCKTAIL:
       return {
@@ -44,7 +76,9 @@ export const cocktailReducer = (state: CocktailSkill = initialState, action: Coc
         cocktailsSearch: [],
         categories: {},
         sections: {},
-        dialog: { open: false }
+        dialog: { open: false },
+        searchTerm: '',
+        alcoholFilter: 'all',
       }
     case SET_DIALOG_DETAILS:
       return {
