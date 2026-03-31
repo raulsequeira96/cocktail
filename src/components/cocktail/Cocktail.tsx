@@ -126,9 +126,6 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // buildApiUri is included but not in deps because changes to categories will still
-    // produce the same URI given fixed filter parameters. URI comparison prevents refetching.
-    // defaultCocktails changes only in this effect, so it's safe to exclude from deps.
     const uri = buildApiUri(
       searchTerm,
       alcoholFilter,
@@ -158,6 +155,8 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
     categoryFilter,
     glassFilter,
     ingredientFilter,
+    buildApiUri,
+    defaultCocktails,
     loadCocktails,
     dispatch,
   ]);
