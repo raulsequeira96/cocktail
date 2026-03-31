@@ -4,7 +4,7 @@ import type { PaletteMode } from '@mui/material/styles';
 import { CocktailBar } from './CocktailBar';
 import CocktailCatalog from './CocktailCatalog';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategory, doSetallSkill, fetchDataCocktail } from "../../redux/actions/cocktailActions";
+import { addCategory, doSetallSkill, fetchDataCocktail, openDetailsCocktailById } from "../../redux/actions/cocktailActions";
 import DialogCocktailDetails from "./DialogCocktailDetails";
 import { useStyles } from './styles';
 import { RootState } from '../../redux/store';
@@ -177,6 +177,38 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
   const handleSurprise = async () => {
     await loadCocktails(undefined, true);
   };
+
+  // Initialize modal from URL on app mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const drinkId = params.get('drink');
+
+    if (drinkId) {
+      const id = parseInt(drinkId, 10);
+      if (!isNaN(id)) {
+        dispatch(openDetailsCocktailById(id));
+      }
+    }
+  }, [dispatch]);
+
+  // Sync dialog state with URL
+  const dialog = useSelector((state: RootState) => state.cocktail.dialog);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (dialog.open && dialog.details?.id) {
+      // Add drink param to URL
+      params.set('drink', dialog.details.id.toString());
+    } else {
+      // Remove drink param from URL
+      params.delete('drink');
+    }
+
+    const query = params.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`;
+    window.history.replaceState({}, '', nextUrl);
+  }, [dialog.open, dialog.details?.id]);
 
   return (
     <>

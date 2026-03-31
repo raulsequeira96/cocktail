@@ -300,6 +300,18 @@ export const openDetailsCocktail = (skill: Skill) =>
     }
   };
 
+export const openDetailsCocktailById = (id: number) =>
+  async (dispatch: any) => {
+    try {
+      const detailedCocktail = await fetchCocktailById(id);
+      if (detailedCocktail) {
+        dispatch({ type: SET_DIALOG_DETAILS, payload: { value: detailedCocktail, open: true } });
+      }
+    } catch (error) {
+      console.log("Error en el dialog: ", error);
+    }
+  };
+
 export const closeDetailsCocktail = () =>
   async (dispatch: any, getState: CocktailSkill) => {
     try {
