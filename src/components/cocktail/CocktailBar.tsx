@@ -271,6 +271,12 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
   }, [searchTerm]);
 
   useEffect(() => {
+    if (!isMobile) {
+      setIsFilterDrawerOpen(false);
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
     if (!filtersHydrated) {
       return;
     }
@@ -481,14 +487,16 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
             >
               <Box component="span" className={classes.surpriseLabel}>Sorpresa</Box>
             </Button>
-            <IconButton
-              color="inherit"
-              aria-label="Abrir filtros"
-              onClick={() => setIsFilterDrawerOpen(true)}
-              className={classes.filterButton}
-            >
-              <TuneRoundedIcon />
-            </IconButton>
+            {isMobile && (
+              <IconButton
+                color="inherit"
+                aria-label="Abrir filtros"
+                onClick={() => setIsFilterDrawerOpen(true)}
+                className={classes.filterButton}
+              >
+                <TuneRoundedIcon />
+              </IconButton>
+            )}
             <IconButton
               color="inherit"
               aria-label={mode === 'dark' ? 'activar modo claro' : 'activar modo oscuro'}
@@ -503,7 +511,7 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
 
       <Drawer
         anchor="right"
-        open={isFilterDrawerOpen}
+        open={isMobile && isFilterDrawerOpen}
         onClose={() => setIsFilterDrawerOpen(false)}
       >
         <Box

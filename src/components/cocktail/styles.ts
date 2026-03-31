@@ -180,8 +180,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       },
     },
     filterButton: {
-      [theme.breakpoints.up('md')]: {
-        display: 'none',
+      display: 'none',
+      [theme.breakpoints.down('sm')]: {
+        display: 'inline-flex',
       },
     },
     filterControl: {
