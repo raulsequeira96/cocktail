@@ -91,7 +91,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       padding: 8,
       width: '100%',
       [theme.breakpoints.down('sm')]: {
-        padding: 0,
+        marginLeft: 10 ,
         gridColumn: '1',
       },
     },
@@ -145,9 +145,13 @@ export const useStyles = makeStyles((theme: Theme) =>
       maxWidth: 900,
       padding: theme.spacing(1),
       [theme.breakpoints.down('sm')]: {
-        borderRadius: 16,
+        border: 'none',
+        backgroundColor: 'transparent',
+        '&:hover': {
+          backgroundColor: 'transparent',
+        },
         gap: 0,
-        padding: theme.spacing(0.6),
+        padding: 0,
         maxWidth: '100%',
       },
     },
@@ -159,6 +163,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       '& .MuiInputBase-root.Mui-disabled': {
         opacity: 0.55,
         cursor: 'not-allowed',
+      },
+      [theme.breakpoints.down('sm')]: {
+        borderRadius: 24,
+        backgroundColor: alpha(theme.palette.common.white, theme.palette.mode === 'dark' ? 0.08 : 0.72),
       },
     },
     filtersRow: {
@@ -208,6 +216,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       borderRadius: 12,
       paddingLeft: theme.spacing(0.75),
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: theme.spacing(0.5),
+      },
     },
     inputRoot: {
       color: 'inherit',
@@ -220,6 +231,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       fontSize: '1rem',
       transition: theme.transitions.create('width'),
       width: '100%',
+      [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(0.9, 0.8, 0.9, 0),
+        fontSize: '0.95rem',
+      },
     },
     sectionDesktop: {
       display: 'none',

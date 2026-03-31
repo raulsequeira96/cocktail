@@ -392,7 +392,7 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
             <div className={classes.searchPanel}>
               <Box className={classes.searchMain}>
                 <InputBase
-                  placeholder="Buscar por nombre, ingrediente, categoria o vaso..."
+                  placeholder="Buscar..."
                   startAdornment={
                     <InputAdornment position="start" sx={{ color: 'inherit', ml: 0.5, mr: 0.25 }}>
                       <SearchIcon fontSize="small" />
