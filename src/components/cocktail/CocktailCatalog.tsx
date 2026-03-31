@@ -106,37 +106,6 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
     dispatch(setSortOrder('featured'));
   };
 
-  const applyPreset = (preset: 'summer' | 'noAlcohol' | 'classic' | 'easy') => {
-    const availableCategories = categories?.Category?.subMenus || [];
-
-    dispatch(setSkillSearch(''));
-    dispatch(setAlcoholFilter('all'));
-    dispatch(setCategoryFilter('all'));
-    dispatch(setGlassFilter('all'));
-    dispatch(setIngredientFilter('all'));
-    dispatch(setSortOrder('featured'));
-
-    if (preset === 'summer') {
-      dispatch(setCategoryFilter(availableCategories.includes('Cocktail') ? 'Cocktail' : 'all'));
-      dispatch(setSortOrder('random'));
-      return;
-    }
-
-    if (preset === 'noAlcohol') {
-      dispatch(setAlcoholFilter('non_alcoholic'));
-      return;
-    }
-
-    if (preset === 'classic') {
-      dispatch(setCategoryFilter(availableCategories.includes('Ordinary Drink') ? 'Ordinary Drink' : 'all'));
-      dispatch(setSortOrder('name_asc'));
-      return;
-    }
-
-    dispatch(setCategoryFilter(availableCategories.includes('Ordinary Drink') ? 'Ordinary Drink' : 'all'));
-    dispatch(setSortOrder('featured'));
-  };
-
   const activeFilterChips: Array<{ label: string; onDelete: () => void }> = [];
 
   if (searchTerm) {
@@ -296,14 +265,7 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
   }
 
   return (
-    <Box>
-      <Stack direction="row" spacing={1} sx={{ mb: 1.25, flexWrap: 'wrap' }}>
-        <Chip label="Verano" clickable onClick={() => applyPreset('summer')} />
-        <Chip label="Sin alcohol" clickable onClick={() => applyPreset('noAlcohol')} />
-        <Chip label="Clasicos" clickable onClick={() => applyPreset('classic')} />
-        <Chip label="Facil en casa" clickable onClick={() => applyPreset('easy')} />
-      </Stack>
-
+    <Box>      
       {activeFilterChips.length > 0 && (
         <Stack direction="row" spacing={1} sx={{ mb: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
           {activeFilterChips.map((filter) => (
