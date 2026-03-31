@@ -214,7 +214,7 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
           clickable
           color={showFavoritesOnly ? 'primary' : 'default'}
           variant={showFavoritesOnly ? 'filled' : 'outlined'}
-          label={showFavoritesOnly ? 'Mostrando favoritos' : 'Solo favoritos'}
+          label={showFavoritesOnly ? 'Mostrar todos' : 'Solo favoritos'}
           onClick={() => setShowFavoritesOnly((prev) => !prev)}
         />
       </Stack>
