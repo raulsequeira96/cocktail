@@ -6,6 +6,7 @@ import {
   CocktailSkill,
   IngredientItem,
   ListResponse,
+  SortOrder,
   Skill,
   responseCategory,
   responseSubCategory,
@@ -19,6 +20,10 @@ import {
   SET_ALL_SKILL_COCKTAIL,
   SET_ALL_SKILL_SEARCH,
   SET_DIALOG_DETAILS,
+  SET_CATEGORY_FILTER,
+  SET_GLASS_FILTER,
+  SET_INGREDIENT_FILTER,
+  SET_SORT_ORDER,
   SET_SKILL_COCKTAIL,
   URI_ALCOHOLIC,
   URI_CATEGORY,
@@ -33,6 +38,10 @@ export type CocktailAction =
   | { type: typeof SET_ALL_CATEGORY_COCKTAIL, payload: { value: Category; } }
   | { type: typeof SET_ALL_SKILL_SEARCH, payload: { value: string; } }
   | { type: typeof SET_ALCOHOL_FILTER, payload: { value: AlcoholFilter; } }
+  | { type: typeof SET_CATEGORY_FILTER, payload: { value: string; } }
+  | { type: typeof SET_GLASS_FILTER, payload: { value: string; } }
+  | { type: typeof SET_INGREDIENT_FILTER, payload: { value: string; } }
+  | { type: typeof SET_SORT_ORDER, payload: { value: SortOrder; } }
   | { type: typeof RESET_COCKTAIL_STATE, payload?: never }
   | { type: typeof SET_DIALOG_DETAILS, payload: { value?: Skill; open: boolean } };
 
@@ -61,6 +70,26 @@ export const setAlcoholFilter = (value: AlcoholFilter): CocktailAction => ({
   payload: { value }
 });
 
+export const setCategoryFilter = (value: string): CocktailAction => ({
+  type: SET_CATEGORY_FILTER,
+  payload: { value }
+});
+
+export const setGlassFilter = (value: string): CocktailAction => ({
+  type: SET_GLASS_FILTER,
+  payload: { value }
+});
+
+export const setIngredientFilter = (value: string): CocktailAction => ({
+  type: SET_INGREDIENT_FILTER,
+  payload: { value }
+});
+
+export const setSortOrder = (value: SortOrder): CocktailAction => ({
+  type: SET_SORT_ORDER,
+  payload: { value }
+});
+
 const mapIngredients = (cocktail: CocktailResponse): IngredientItem[] => {
   const list: IngredientItem[] = [];
 
@@ -85,6 +114,37 @@ const mapIngredients = (cocktail: CocktailResponse): IngredientItem[] => {
   return list;
 };
 
+interface QueryHints {
+  category?: string;
+  glass?: string;
+  alcoholic?: string;
+  ingredient?: string;
+}
+
+const decodeFilterValue = (value?: string | null): string | undefined => {
+  if (!value) {
+    return undefined;
+  }
+
+  return decodeURIComponent(value).replace(/_/g, ' ').trim();
+};
+
+const parseQueryHints = (uri?: string): QueryHints => {
+  if (!uri || !uri.startsWith('filter.php?')) {
+    return {};
+  }
+
+  const [, query = ''] = uri.split('?');
+  const params = new URLSearchParams(query);
+
+  return {
+    category: decodeFilterValue(params.get('c')),
+    glass: decodeFilterValue(params.get('g')),
+    alcoholic: decodeFilterValue(params.get('a')),
+    ingredient: decodeFilterValue(params.get('i')),
+  };
+};
+
 const getRandomCocktails = async (total: number = 12): Promise<CocktailResponse[]> => {
   const randomCalls = Array.from({ length: total }, () => axios.get(URL_MAIN + 'random.php'));
   const randomResponses = await Promise.all(randomCalls);
@@ -96,31 +156,77 @@ const getRandomCocktails = async (total: number = 12): Promise<CocktailResponse[
   return Array.from(uniqueById.values());
 };
 
-export const fetchDataCocktail = (uri?: string): ThunkAction<void, RootState, unknown, Action<string>> => async dispatch => {
+const hydrateFilterResults = async (drinks: CocktailResponse[] = []): Promise<CocktailResponse[]> => {
+  if (!drinks.length) {
+    return [];
+  }
+
+  const detailedDrinks = await Promise.all(
+    drinks.map(async (drink) => {
+      try {
+        const response = await axios.get(`${URL_MAIN}lookup.php?i=${drink.idDrink}`);
+        return (response.data?.drinks?.[0] as CocktailResponse | undefined) || drink;
+      } catch (error) {
+        return drink;
+      }
+    }),
+  );
+
+  return detailedDrinks;
+};
+
+export const fetchDataCocktail = (uri?: string): ThunkAction<Promise<Skill[]>, RootState, unknown, Action<string>> => async (dispatch, getState) => {
   try {
-    const drinks = uri
+    const drinksFromApi = uri
       ? (await axios.get(URL_MAIN + uri)).data.drinks || []
       : await getRandomCocktails();
+    const queryHints = parseQueryHints(uri);
 
-    dispatch({ type: SET_ALL_SKILL_COCKTAIL, payload: { value: formatResponse(drinks) } });
+    const { categoryFilter, glassFilter, ingredientFilter, alcoholFilter, sortOrder } = getState().cocktail;
+    const activeApiFilterCount = [
+      categoryFilter !== 'all',
+      glassFilter !== 'all',
+      ingredientFilter !== 'all',
+      alcoholFilter !== 'all',
+    ].filter(Boolean).length;
+    const needsDetailedHydration =
+      Boolean(uri?.startsWith('filter.php?'))
+      && (activeApiFilterCount > 1 || sortOrder === 'ingredients_desc' || sortOrder === 'ingredients_asc');
+
+    const drinks = needsDetailedHydration ? await hydrateFilterResults(drinksFromApi) : drinksFromApi;
+
+    const formatted = formatResponse(drinks, queryHints);
+    dispatch({ type: SET_ALL_SKILL_COCKTAIL, payload: { value: formatted } });
+
+    return formatted;
   } catch (error) {
     console.log("Ocurrio un error al obtener los cocktail: ", error);
+    return [];
   }
 };
 
-const formatResponse = (listCocktails: CocktailResponse[] = []): Skill[] => {
+const formatResponse = (listCocktails: CocktailResponse[] = [], hints: QueryHints = {}): Skill[] => {
   return listCocktails.map((cocktail: CocktailResponse) => {
-    const ingredientItems = mapIngredients(cocktail);
+    const ingredientItemsFromApi = mapIngredients(cocktail);
+    const ingredientItems = ingredientItemsFromApi.length > 0
+      ? ingredientItemsFromApi
+      : hints.ingredient
+        ? [{
+          name: hints.ingredient,
+          thumbnail: `https://www.thecocktaildb.com/images/ingredients/${encodeURIComponent(hints.ingredient)}-small.png`,
+          display: hints.ingredient,
+        }]
+        : [];
 
     return {
       id: Number(cocktail.idDrink),
       title: cocktail.strDrink,
       price: 0,
-      category: cocktail.strCategory || 'Sin categoria',
+      category: cocktail.strCategory || hints.category || 'Sin categoria',
       description: cocktail.strInstructionsES || cocktail.strInstructions || 'Sin descripcion disponible.',
       image: cocktail.strDrinkThumb,
-      alcoholic: cocktail.strAlcoholic,
-      glass: cocktail.strGlass,
+      alcoholic: cocktail.strAlcoholic || hints.alcoholic,
+      glass: cocktail.strGlass || hints.glass,
       iba: cocktail.strIBA,
       tags: cocktail.strTags ? cocktail.strTags.split(',').map((tag) => tag.trim()).filter(Boolean) : [],
       ingredients: ingredientItems.map((ingredient) => ingredient.display),

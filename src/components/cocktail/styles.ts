@@ -31,20 +31,6 @@ export const useStyles = makeStyles((theme: Theme) =>
     grow: {
       flexGrow: 1,
     },
-    menuButton: {
-      marginRight: theme.spacing(2),
-      border: `1px solid ${alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.2 : 0.18)}`,
-      backgroundColor:
-        theme.palette.mode === 'dark'
-          ? alpha(theme.palette.common.black, 0.18)
-          : alpha(theme.palette.common.white, 0.45),
-      '&:hover': {
-        backgroundColor:
-          theme.palette.mode === 'dark'
-            ? alpha(theme.palette.common.white, 0.14)
-            : alpha(theme.palette.common.white, 0.72),
-      },
-    },
     appBar: {
       borderRadius: 0,
       borderBottom: `1px solid ${alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.16 : 0.14)}`,
@@ -57,17 +43,17 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     appToolbar: {
       display: 'grid',
-      gridTemplateColumns: 'minmax(280px, 1fr) minmax(280px, 480px) minmax(170px, 1fr)',
+      gridTemplateColumns: 'minmax(220px, 1fr) minmax(480px, 980px) minmax(170px, 1fr)',
       alignItems: 'center',
       columnGap: theme.spacing(1.5),
       minHeight: 72,
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
       [theme.breakpoints.down('lg')]: {
-        gridTemplateColumns: 'minmax(240px, 1fr) minmax(240px, 420px) minmax(138px, 1fr)',
+        gridTemplateColumns: 'minmax(200px, 1fr) minmax(380px, 760px) minmax(138px, 1fr)',
       },
       [theme.breakpoints.down('md')]: {
-        gridTemplateColumns: 'minmax(210px, 1fr) minmax(220px, 360px) minmax(126px, 1fr)',
+        gridTemplateColumns: 'minmax(180px, 1fr) minmax(260px, 620px) minmax(126px, 1fr)',
       },
       [theme.breakpoints.down('sm')]: {
         minHeight: 64,
@@ -88,6 +74,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       minWidth: 0,
       maxWidth: '100%',
+      paddingLeft: theme.spacing(0.5),
     },
     brandLogo: {
       width: 32,
@@ -99,6 +86,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     toolbarCenter: {
       display: 'flex',
       justifyContent: 'center',
+      padding: 8,
       width: '100%',
       [theme.breakpoints.down('sm')]: {
         gridColumn: '1 / 3',
@@ -132,44 +120,67 @@ export const useStyles = makeStyles((theme: Theme) =>
     searchPanel: {
       position: 'relative',
       display: 'flex',
-      alignItems: 'center',
-      gap: theme.spacing(1),
-      borderRadius: 999,
-      border: `1px solid ${alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.2 : 0.18)}`,
+      flexDirection: 'column',
+      gap: theme.spacing(0.9),
+      borderRadius: 20,
+      border: `1px solid ${alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.18 : 0.14)}`,
       backgroundColor:
         theme.palette.mode === 'dark'
-          ? alpha(theme.palette.common.white, 0.08)
-          : alpha(theme.palette.common.white, 0.72),
+          ? alpha(theme.palette.common.white, 0.06)
+          : alpha(theme.palette.common.white, 0.68),
       color: theme.palette.mode === 'dark' ? theme.palette.common.white : alpha(theme.palette.text.primary, 0.92),
       '&:hover': {
         backgroundColor:
           theme.palette.mode === 'dark'
-            ? alpha(theme.palette.common.white, 0.14)
-            : alpha(theme.palette.common.white, 0.9),
+            ? alpha(theme.palette.common.white, 0.11)
+            : alpha(theme.palette.common.white, 0.88),
       },
       width: '100%',
-      maxWidth: 480,
-      padding: theme.spacing(0.45, 0.65),
+      maxWidth: 900,
+      padding: theme.spacing(1),
       [theme.breakpoints.down('sm')]: {
-        flexDirection: 'column',
-        alignItems: 'stretch',
         borderRadius: 16,
-        gap: theme.spacing(0.5),
+        gap: theme.spacing(0.7),
       },
     },
+    searchMain: {
+      width: '100%',
+      borderRadius: 12,
+      border: `1px solid ${alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.18 : 0.14)}`,
+      backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.3 : 0.78),
+      '& .MuiInputBase-root.Mui-disabled': {
+        opacity: 0.55,
+        cursor: 'not-allowed',
+      },
+    },
+    filtersRow: {
+      width: '100%',
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: theme.spacing(0.75),
+      alignItems: 'center',
+    },
     filterControl: {
-      minWidth: 124,
+      minWidth: 132,
+      flex: '1 1 132px',
       '& .MuiInputLabel-root': {
         color: alpha(theme.palette.text.primary, 0.72),
       },
       '& .MuiOutlinedInput-root': {
-        borderRadius: 999,
+        borderRadius: 10,
         backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.22 : 0.58),
         '& fieldset': {
           borderColor: alpha(theme.palette.text.primary, 0.22),
         },
         '&:hover fieldset': {
           borderColor: alpha(theme.palette.text.primary, 0.32),
+        },
+        '&.Mui-disabled': {
+          opacity: 0.55,
+          backgroundColor: alpha(theme.palette.action.disabledBackground, theme.palette.mode === 'dark' ? 0.3 : 0.7),
+          '& fieldset': {
+            borderColor: alpha(theme.palette.text.primary, 0.16),
+          },
         },
       },
       '& .MuiSelect-select': {
@@ -181,8 +192,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       },
     },
     searchInput: {
-      flex: 1,
-      minWidth: 0,
+      width: '100%',
+      borderRadius: 12,
+      paddingLeft: theme.spacing(0.75),
     },
     inputRoot: {
       color: 'inherit',
@@ -192,7 +204,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     inputInput: {
       padding: theme.spacing(1.15, 1, 1.15, 0),
-      fontSize: '0.95rem',
+      fontSize: '1rem',
       transition: theme.transitions.create('width'),
       width: '100%',
     },

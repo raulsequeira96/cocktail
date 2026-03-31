@@ -3,10 +3,12 @@ import { Box, Container, Fade, Stack, Typography } from '@mui/material';
 import type { PaletteMode } from '@mui/material/styles';
 import { CocktailBar } from './CocktailBar';
 import CocktailCatalog from './CocktailCatalog';
-import { useDispatch } from 'react-redux';
-import { fetchDataCocktail, addCategory } from "../../redux/actions/cocktailActions";
+import { useDispatch, useSelector } from 'react-redux';
+import { addCategory, doSetallSkill, fetchDataCocktail } from "../../redux/actions/cocktailActions";
 import DialogCocktailDetails from "./DialogCocktailDetails";
 import { useStyles } from './styles';
+import { RootState } from '../../redux/store';
+import { AlcoholFilter, Category, Skill } from '../../interfaces/cocktailInterfaces';
 
 interface CocktailProps {
   mode: PaletteMode;
@@ -17,11 +19,95 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
   const dispatch = useDispatch<any>();
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(true);
+  const [defaultCocktails, setDefaultCocktails] = useState<Skill[]>([]);
+  const searchTerm = useSelector((state: RootState) => state.cocktail.searchTerm);
+  const alcoholFilter = useSelector((state: RootState) => state.cocktail.alcoholFilter);
+  const categoryFilter = useSelector((state: RootState) => state.cocktail.categoryFilter);
+  const glassFilter = useSelector((state: RootState) => state.cocktail.glassFilter);
+  const ingredientFilter = useSelector((state: RootState) => state.cocktail.ingredientFilter);
+  const categories = useSelector((state: RootState) => state.cocktail.categories as Category);
+  const loadedCocktails = useSelector((state: RootState) => state.cocktail.cocktails as Skill[]);
 
-  const loadCocktails = useCallback(async (uri?: string) => {
+  const normalizeFilterValue = (value: string) => encodeURIComponent(value.trim().replace(/\s+/g, '_'));
+
+  const buildApiUri = useCallback((
+    currentSearchTerm: string,
+    currentAlcoholFilter: AlcoholFilter,
+    currentCategoryFilter: string,
+    currentGlassFilter: string,
+    currentIngredientFilter: string,
+  ): string | undefined => {
+    const normalizedSearch = currentSearchTerm.trim();
+
+    if (currentIngredientFilter !== 'all') {
+      return `filter.php?i=${normalizeFilterValue(currentIngredientFilter)}`;
+    }
+
+    if (currentCategoryFilter !== 'all') {
+      return `filter.php?c=${normalizeFilterValue(currentCategoryFilter)}`;
+    }
+
+    if (currentGlassFilter !== 'all') {
+      return `filter.php?g=${normalizeFilterValue(currentGlassFilter)}`;
+    }
+
+    if (currentAlcoholFilter === 'alcoholic') {
+      return 'filter.php?a=Alcoholic';
+    }
+
+    if (currentAlcoholFilter === 'non_alcoholic') {
+      return 'filter.php?a=Non_Alcoholic';
+    }
+
+    if (normalizedSearch) {
+      const searchValue = normalizedSearch.toLowerCase();
+      const matchFrom = (list: string[] = []) => list.find((item) => item.toLowerCase() === searchValue);
+
+      const categoryMatch = matchFrom(categories?.Category?.subMenus || []);
+      if (categoryMatch) {
+        return `filter.php?c=${normalizeFilterValue(categoryMatch)}`;
+      }
+
+      const glassMatch = matchFrom(categories?.Glasses?.subMenus || []);
+      if (glassMatch) {
+        return `filter.php?g=${normalizeFilterValue(glassMatch)}`;
+      }
+
+      const ingredientMatch = matchFrom(categories?.Ingredients?.subMenus || []);
+      if (ingredientMatch) {
+        return `filter.php?i=${normalizeFilterValue(ingredientMatch)}`;
+      }
+
+      const alcoholicMatch = matchFrom(categories?.Alcoholic?.subMenus || []);
+      if (alcoholicMatch) {
+        return `filter.php?a=${normalizeFilterValue(alcoholicMatch)}`;
+      }
+
+      return `search.php?s=${encodeURIComponent(normalizedSearch)}`;
+    }
+
+    return undefined;
+  }, [categories]);
+
+  const isSameCocktailSet = (source: Skill[], target: Skill[]) => {
+    if (source.length !== target.length) {
+      return false;
+    }
+
+    const sourceIds = new Set(source.map((cocktail) => cocktail.id));
+    return target.every((cocktail) => sourceIds.has(cocktail.id));
+  };
+
+  const loadCocktails = useCallback(async (uri?: string, persistAsDefault: boolean = false) => {
     setIsLoading(true);
     try {
-      await dispatch(fetchDataCocktail(uri));
+      const fetched = await dispatch(fetchDataCocktail(uri));
+
+      if (persistAsDefault && fetched.length > 0) {
+        setDefaultCocktails(fetched);
+      }
+
+      return fetched;
     } finally {
       setIsLoading(false);
     }
@@ -32,7 +118,6 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
 
     const execute = async () => {
       try {
-        await loadCocktails();
         await dispatch(addCategory());
       } finally {
         if (isMounted) {
@@ -46,10 +131,51 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
     return () => {
       isMounted = false;
     };
-  }, [dispatch, loadCocktails]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    const uri = buildApiUri(
+      searchTerm,
+      alcoholFilter,
+      categoryFilter,
+      glassFilter,
+      ingredientFilter,
+    );
+
+    if (uri) {
+      loadCocktails(uri);
+      return;
+    }
+
+    if (defaultCocktails.length > 0) {
+      if (!isSameCocktailSet(defaultCocktails, loadedCocktails)) {
+        dispatch(doSetallSkill(defaultCocktails));
+      }
+
+      return;
+    }
+
+    if (loadedCocktails.length === 0) {
+      loadCocktails(undefined, true);
+      return;
+    }
+
+    setDefaultCocktails(loadedCocktails);
+  }, [
+    buildApiUri,
+    searchTerm,
+    alcoholFilter,
+    categoryFilter,
+    glassFilter,
+    ingredientFilter,
+    defaultCocktails,
+    loadedCocktails,
+    dispatch,
+    loadCocktails,
+  ]);
 
   const handleSurprise = async () => {
-    await loadCocktails();
+    await loadCocktails(undefined, true);
   };
 
   return (
@@ -69,7 +195,7 @@ const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
           </Fade>
           <Fade in timeout={800}>
             <Box>
-              <CocktailCatalog isLoading={isLoading} />
+              <CocktailCatalog isLoading={isLoading} onSurprise={handleSurprise} />
             </Box>
           </Fade>
         </Container>

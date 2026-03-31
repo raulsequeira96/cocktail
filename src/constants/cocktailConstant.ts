@@ -31,6 +31,10 @@ export const SET_ALL_SKILL_COCKTAIL = "setAllSkill";
 export const SET_ALL_CATEGORY_COCKTAIL = "setAllCategory";
 export const SET_ALL_SKILL_SEARCH = "setAllSkillSearch";
 export const SET_ALCOHOL_FILTER = "setAlcoholFilter";
+export const SET_CATEGORY_FILTER = "setCategoryFilter";
+export const SET_GLASS_FILTER = "setGlassFilter";
+export const SET_INGREDIENT_FILTER = "setIngredientFilter";
+export const SET_SORT_ORDER = "setSortOrder";
 export const RESET_COCKTAIL_STATE = "reset";
 export const SET_DIALOG_DETAILS = "setDialogCocktailDetails";
 

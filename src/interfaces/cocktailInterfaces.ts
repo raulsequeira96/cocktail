@@ -23,6 +23,7 @@ export interface IngredientItem {
 }
 
 export type AlcoholFilter = 'all' | 'alcoholic' | 'non_alcoholic';
+export type SortOrder = 'featured' | 'name_asc' | 'name_desc' | 'ingredients_desc' | 'ingredients_asc' | 'random';
 
 export interface CocktailSkill {
   cocktails: Skill[] | [],
@@ -32,6 +33,10 @@ export interface CocktailSkill {
   dialog: DialogDetails
   searchTerm: string
   alcoholFilter: AlcoholFilter
+  categoryFilter: string
+  glassFilter: string
+  ingredientFilter: string
+  sortOrder: SortOrder
 }
 
 export interface DialogDetails{

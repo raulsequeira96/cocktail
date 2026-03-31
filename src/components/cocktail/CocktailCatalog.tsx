@@ -1,17 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { CocktailCard } from './cocktail-card/CocktailCard';
 import Grid from '@mui/material/Grid';
-import { Skill } from '../../interfaces/cocktailInterfaces';
+import { Category, Skill } from '../../interfaces/cocktailInterfaces';
 import { Box, Button, Card, CardActionArea, CardActions, CardContent, Chip, Grow, Paper, Skeleton, Snackbar, Stack, Typography } from '@mui/material';
 import CardImage from './cocktail-card/CardImage';
 import Cardtitle from './cocktail-card/Cardtitle';
 import CardButton from './cocktail-card/CardButton';
 import { useStyles } from './styles';
+import {
+  setAlcoholFilter,
+  setCategoryFilter,
+  setGlassFilter,
+  setIngredientFilter,
+  setSkillSearch,
+  setSortOrder,
+} from '../../redux/actions/cocktailActions';
 
 interface CocktailCatalogProps {
   isLoading?: boolean;
+  onSurprise: () => void;
 }
 
 const FAVORITES_STORAGE_KEY = 'cocktail-studio-favorites';
@@ -58,8 +67,16 @@ const getInitialFavorites = (): FavoritesStorageValue => {
   }
 };
 
-const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
+const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) => {
   const cocktails: Skill[] = useSelector((state: RootState) => state.cocktail.cocktailsSearch);
+  const categories = useSelector((state: RootState) => state.cocktail.categories as Category);
+  const searchTerm = useSelector((state: RootState) => state.cocktail.searchTerm);
+  const alcoholFilter = useSelector((state: RootState) => state.cocktail.alcoholFilter);
+  const categoryFilter = useSelector((state: RootState) => state.cocktail.categoryFilter);
+  const glassFilter = useSelector((state: RootState) => state.cocktail.glassFilter);
+  const ingredientFilter = useSelector((state: RootState) => state.cocktail.ingredientFilter);
+  const sortOrder = useSelector((state: RootState) => state.cocktail.sortOrder);
+  const dispatch = useDispatch<any>();
   const classes = useStyles();
   const initialFavorites = getInitialFavorites();
   const [favoriteIds, setFavoriteIds] = useState<number[]>(initialFavorites.ids);
@@ -79,6 +96,70 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
   );
   const pagedCocktails = cocktailsToRender.slice(0, visibleCount);
   const canLoadMore = visibleCount < cocktailsToRender.length;
+
+  const applyDefaultFilters = () => {
+    dispatch(setSkillSearch(''));
+    dispatch(setAlcoholFilter('all'));
+    dispatch(setCategoryFilter('all'));
+    dispatch(setGlassFilter('all'));
+    dispatch(setIngredientFilter('all'));
+    dispatch(setSortOrder('featured'));
+  };
+
+  const applyPreset = (preset: 'summer' | 'noAlcohol' | 'classic' | 'easy') => {
+    const availableCategories = categories?.Category?.subMenus || [];
+
+    dispatch(setSkillSearch(''));
+    dispatch(setAlcoholFilter('all'));
+    dispatch(setCategoryFilter('all'));
+    dispatch(setGlassFilter('all'));
+    dispatch(setIngredientFilter('all'));
+    dispatch(setSortOrder('featured'));
+
+    if (preset === 'summer') {
+      dispatch(setCategoryFilter(availableCategories.includes('Cocktail') ? 'Cocktail' : 'all'));
+      dispatch(setSortOrder('random'));
+      return;
+    }
+
+    if (preset === 'noAlcohol') {
+      dispatch(setAlcoholFilter('non_alcoholic'));
+      return;
+    }
+
+    if (preset === 'classic') {
+      dispatch(setCategoryFilter(availableCategories.includes('Ordinary Drink') ? 'Ordinary Drink' : 'all'));
+      dispatch(setSortOrder('name_asc'));
+      return;
+    }
+
+    dispatch(setCategoryFilter(availableCategories.includes('Ordinary Drink') ? 'Ordinary Drink' : 'all'));
+    dispatch(setSortOrder('featured'));
+  };
+
+  const activeFilterChips: Array<{ label: string; onDelete: () => void }> = [];
+
+  if (searchTerm) {
+    activeFilterChips.push({ label: `Busqueda: ${searchTerm}`, onDelete: () => dispatch(setSkillSearch('')) });
+  }
+  if (alcoholFilter !== 'all') {
+    activeFilterChips.push({
+      label: alcoholFilter === 'alcoholic' ? 'Con alcohol' : 'Sin alcohol',
+      onDelete: () => dispatch(setAlcoholFilter('all')),
+    });
+  }
+  if (categoryFilter !== 'all') {
+    activeFilterChips.push({ label: `Categoria: ${categoryFilter}`, onDelete: () => dispatch(setCategoryFilter('all')) });
+  }
+  if (glassFilter !== 'all') {
+    activeFilterChips.push({ label: `Vaso: ${glassFilter}`, onDelete: () => dispatch(setGlassFilter('all')) });
+  }
+  if (ingredientFilter !== 'all') {
+    activeFilterChips.push({ label: `Ingrediente: ${ingredientFilter}`, onDelete: () => dispatch(setIngredientFilter('all')) });
+  }
+  if (sortOrder !== 'featured') {
+    activeFilterChips.push({ label: `Orden: ${sortOrder}`, onDelete: () => dispatch(setSortOrder('featured')) });
+  }
 
   useEffect(() => {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify({ ids: favoriteIds, cocktails: favoriteCocktails }));
@@ -191,21 +272,47 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
             ? 'Marca cocktails con el icono de corazon para verlos aca.'
             : 'Proba con otro termino o elegi una categoria desde el menu lateral.'}
         </Typography>
-        {showFavoritesOnly && (
-          <Button
-            variant="outlined"
-            sx={{ mt: 2 }}
-            onClick={() => setShowFavoritesOnly(false)}
-          >
-            Ver todos
-          </Button>
-        )}
+        <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {showFavoritesOnly && (
+            <Button
+              variant="outlined"
+              onClick={() => setShowFavoritesOnly(false)}
+            >
+              Ver todos
+            </Button>
+          )}
+          {!showFavoritesOnly && (
+            <>
+              <Button variant="outlined" onClick={applyDefaultFilters}>Limpiar filtros</Button>
+              {alcoholFilter !== 'all' && (
+                <Button variant="outlined" onClick={() => dispatch(setAlcoholFilter('all'))}>Quitar filtro alcohol</Button>
+              )}
+              <Button variant="contained" onClick={onSurprise}>Ver sorpresas</Button>
+            </>
+          )}
+        </Stack>
       </Paper>
     );
   }
 
   return (
     <Box>
+      <Stack direction="row" spacing={1} sx={{ mb: 1.25, flexWrap: 'wrap' }}>
+        <Chip label="Verano" clickable onClick={() => applyPreset('summer')} />
+        <Chip label="Sin alcohol" clickable onClick={() => applyPreset('noAlcohol')} />
+        <Chip label="Clasicos" clickable onClick={() => applyPreset('classic')} />
+        <Chip label="Facil en casa" clickable onClick={() => applyPreset('easy')} />
+      </Stack>
+
+      {activeFilterChips.length > 0 && (
+        <Stack direction="row" spacing={1} sx={{ mb: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+          {activeFilterChips.map((filter) => (
+            <Chip key={filter.label} label={filter.label} onDelete={filter.onDelete} color="primary" variant="outlined" />
+          ))}
+          <Button size="small" onClick={applyDefaultFilters}>Limpiar todo</Button>
+        </Stack>
+      )}
+
       <Stack direction="row" spacing={1} sx={{ mb: 2, alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
           Mostrando {pagedCocktails.length} de {cocktailsToRender.length} cocktails
