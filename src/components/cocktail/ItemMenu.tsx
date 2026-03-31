@@ -1,6 +1,6 @@
-import { List, ListItem, ListItemText, Collapse } from '@material-ui/core';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
+import { List, ListItemButton, ListItemText, Collapse } from '@mui/material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useDispatch } from 'react-redux';
 import { fetchDataCocktail } from '../../redux/actions/cocktailActions';
 import { AllowedKeys, SubmenuState } from '../../interfaces/cocktailInterfaces';
@@ -35,22 +35,21 @@ const ItemMenu = ({ toggleSubmenu, openSubmenu, classes, sectionTitle, subSectio
 
   return (
     <>
-      <ListItem button onClick={event => toggleSubmenu(event, sectionTitle)}>
+      <ListItemButton onClick={event => toggleSubmenu(event, sectionTitle)}>
         <ListItemText primary={sectionTitle} style={{ color: 'white', fontWeight: 'bold', fontSize: '1.8em' }} />
         {getSectionValue() ? <ExpandLess /> : <ExpandMore />}
-      </ListItem>
+      </ListItemButton>
       <Collapse in={getSectionValue()} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {
             subSections && subSections.map((sub: string, index: number) =>
-              <ListItem
-                button
+              <ListItemButton
                 className={classes.nested}
                 key={index}
                 onClick={() => handleSubcategoryClick(sub, sectionTitle)} // Manejador de eventos para imprimir el nombre de la subcategoría
               >
                 <ListItemText primary={sub} style={{ color: 'red', fontSize: '1em' }} />
-              </ListItem>
+              </ListItemButton>
             )
           }
         </List>

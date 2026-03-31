@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { CocktailCard } from './cocktail-card/CocktailCard';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 import { Skill } from '../../interfaces/cocktailInterfaces';
-import { Card, CardActionArea, CardActions, CardContent } from '@material-ui/core';
+import { Card, CardActionArea, CardActions, CardContent } from '@mui/material';
 import CardImage from './cocktail-card/CardImage';
 import Cardtitle from './cocktail-card/Cardtitle';
 import CardButton from './cocktail-card/CardButton';
@@ -19,7 +19,7 @@ const CocktailTable = () => {
       <Grid container spacing={1}>
         {cocktails
           ? cocktails.map((cocktail) => (
-            <Grid item xs={3} key={cocktail.id}>
+            <Grid size={3} key={cocktail.id}>
               {/* <CocktailCard {...cocktail} /> */}
               <CocktailCard skill = {cocktail}>
                 <Card className={classes.cardRoot}>

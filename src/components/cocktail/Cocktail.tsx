@@ -16,7 +16,7 @@ const Cocktail = () => {
     };
 
     execute();
-  }, []);
+  }, [dispatch]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { CardMedia } from "@material-ui/core"
+import { CardMedia } from "@mui/material"
 import { useContext } from "react";
 import { CocktailCardContext } from "./CocktailCard";
 import { useStyles } from "../styles";

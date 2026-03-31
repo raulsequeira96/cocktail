@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { List } from '@material-ui/core';
+import { List } from '@mui/material';
 import ItemMenu from './ItemMenu';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';

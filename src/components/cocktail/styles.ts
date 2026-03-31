@@ -1,7 +1,8 @@
-import { alpha, makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { alpha, Theme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+  ({
     grow: {
       flexGrow: 1,
     },
@@ -16,6 +17,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     search: {
       position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
       borderRadius: theme.shape.borderRadius,
       backgroundColor: alpha(theme.palette.common.white, 0.15),
       '&:hover': {
@@ -30,9 +33,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       },
     },
     searchIcon: {
-      padding: theme.spacing(0, 2),
-      height: '100%',
       position: 'absolute',
+      left: theme.spacing(1.25),
+      top: '50%',
+      transform: 'translateY(-50%)',
       pointerEvents: 'none',
       display: 'flex',
       alignItems: 'center',
@@ -40,11 +44,11 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     inputRoot: {
       color: 'inherit',
+      display: 'flex',
+      alignItems: 'center',
     },
     inputInput: {
-      padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+      padding: theme.spacing(1, 1.5, 1, 0),
       transition: theme.transitions.create('width'),
       width: '100%',
       [theme.breakpoints.up('md')]: {

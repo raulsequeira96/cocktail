@@ -1,12 +1,13 @@
 import React, { ChangeEvent, useState } from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from '@material-ui/icons/Search';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import Drawer from '@material-ui/core/Drawer';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import InputBase from '@mui/material/InputBase';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import Drawer from '@mui/material/Drawer';
 import { useStyles } from './styles';
 import MenuCocktail from './MenuCocktail';
 import { useDispatch, useSelector } from 'react-redux';
@@ -58,11 +59,13 @@ export const CocktailBar: React.FC = () => {
             Cocktail App yeah
           </Typography>
           <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
             <InputBase
               placeholder="Search…"
+              startAdornment={
+                <InputAdornment position="start" style={{ color: '#fff', padding: '8px' }}>
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              }
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
