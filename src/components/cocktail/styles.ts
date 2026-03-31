@@ -91,7 +91,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       padding: 8,
       width: '100%',
       [theme.breakpoints.down('sm')]: {
-        marginLeft: 10 ,
+        marginLeft: 10,
         gridColumn: '1',
       },
     },

@@ -383,16 +383,25 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
                 alt="Logo Cocktail Studio"
                 className={classes.brandLogo}
               />
-              <Typography className={classes.title} variant="h5" component="h1">
-                Cocktail Studio
-              </Typography>
+              <Box sx={{
+                display: {
+                  xs: "none",
+                  sm: "none",
+                  md: "none",
+                  lg: "block"
+                }
+              }}>
+                <Typography className={classes.title} variant="h5" component="h1">
+                  Cocktail Studio
+                </Typography>
+              </Box>
             </Box>
           </Box>
           <Box className={classes.toolbarCenter}>
             <div className={classes.searchPanel}>
               <Box className={classes.searchMain}>
                 <InputBase
-                  placeholder="Buscar..."
+                  placeholder="Buscar por nombre, ingrediente, categoria o vaso..."
                   startAdornment={
                     <InputAdornment position="start" sx={{ color: 'inherit', ml: 0.5, mr: 0.25 }}>
                       <SearchIcon fontSize="small" />
