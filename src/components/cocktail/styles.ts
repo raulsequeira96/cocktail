@@ -57,11 +57,13 @@ export const useStyles = makeStyles((theme: Theme) =>
       },
       [theme.breakpoints.down('sm')]: {
         minHeight: 64,
-        gridTemplateColumns: 'minmax(0, 1fr) auto',
-        gridTemplateRows: 'auto auto',
-        rowGap: theme.spacing(1),
-        paddingTop: theme.spacing(1),
-        paddingBottom: theme.spacing(1.25),
+        gridTemplateColumns: '1fr auto auto',
+        gridTemplateRows: 'auto',
+        columnGap: theme.spacing(0.75),
+        paddingTop: theme.spacing(0.75),
+        paddingBottom: theme.spacing(0.75),
+        paddingLeft: theme.spacing(0.75),
+        paddingRight: theme.spacing(0.75),
       },
     },
     toolbarLeft: {
@@ -89,7 +91,8 @@ export const useStyles = makeStyles((theme: Theme) =>
       padding: 8,
       width: '100%',
       [theme.breakpoints.down('sm')]: {
-        gridColumn: '1 / 3',
+        padding: 0,
+        gridColumn: '1',
       },
     },
     toolbarRight: {
@@ -99,6 +102,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       gap: theme.spacing(1),
       [theme.breakpoints.down('md')]: {
         gap: theme.spacing(0.75),
+      },
+      [theme.breakpoints.down('sm')]: {
+        gap: theme.spacing(0.5),
       },
     },
     title: {
@@ -140,7 +146,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(1),
       [theme.breakpoints.down('sm')]: {
         borderRadius: 16,
-        gap: theme.spacing(0.7),
+        gap: 0,
+        padding: theme.spacing(0.6),
+        maxWidth: '100%',
       },
     },
     searchMain: {
@@ -159,6 +167,14 @@ export const useStyles = makeStyles((theme: Theme) =>
       flexWrap: 'wrap',
       gap: theme.spacing(0.75),
       alignItems: 'center',
+      [theme.breakpoints.down('sm')]: {
+        display: 'none',
+      },
+    },
+    filterButton: {
+      [theme.breakpoints.up('md')]: {
+        display: 'none',
+      },
     },
     filterControl: {
       minWidth: 132,
@@ -186,9 +202,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       '& .MuiSelect-select': {
         paddingTop: 8,
         paddingBottom: 8,
-      },
-      [theme.breakpoints.down('sm')]: {
-        width: '100%',
       },
     },
     searchInput: {
@@ -304,6 +317,9 @@ export const useStyles = makeStyles((theme: Theme) =>
         '& .MuiButton-startIcon': {
           marginRight: 0,
         },
+      },
+      [theme.breakpoints.down('sm')]: {
+        display: 'none',
       },
     },
     surpriseLabel: {

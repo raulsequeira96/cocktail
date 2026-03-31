@@ -9,12 +9,15 @@ import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Drawer from '@mui/material/Drawer';
 import type { PaletteMode } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import ShuffleRoundedIcon from '@mui/icons-material/ShuffleRounded';
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import { useStyles } from './styles';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
@@ -81,6 +84,7 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
   const dispatch = useDispatch<any>();
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const [searchDraft, setSearchDraft] = useState('');
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const cocktails = useSelector((state: RootState) => state.cocktail.cocktails as Skill[]);
   const categories = useSelector((state: RootState) => state.cocktail.categories as Category);
   const searchTerm = useSelector((state: RootState) => state.cocktail.searchTerm);
@@ -467,6 +471,14 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
             </Button>
             <IconButton
               color="inherit"
+              aria-label="Abrir filtros"
+              onClick={() => setIsFilterDrawerOpen(true)}
+              className={classes.filterButton}
+            >
+              <TuneRoundedIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
               aria-label={mode === 'dark' ? 'activar modo claro' : 'activar modo oscuro'}
               onClick={onToggleTheme}
               className={classes.themeToggleButton}
@@ -476,6 +488,100 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
           </Box>
         </Toolbar>
       </AppBar>
+
+      <Drawer
+        anchor="right"
+        open={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+      >
+        <Box
+          sx={{
+            width: 320,
+            p: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+              Filtros
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => setIsFilterDrawerOpen(false)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
+
+          <FormControl fullWidth size="small" disabled={isAlcoholDisabled}>
+            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
+              Tipo de bebida
+            </Typography>
+            <Select
+              labelId="alcohol-filter-label"
+              value={alcoholFilter}
+              onChange={handleAlcoholChange}
+              displayEmpty
+            >
+              <MenuItem value="all">Todos ({alcoholCounts.all})</MenuItem>
+              <MenuItem value="alcoholic">Con alcohol ({alcoholCounts.alcoholic})</MenuItem>
+              <MenuItem value="non_alcoholic">Sin alcohol ({alcoholCounts.non_alcoholic})</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth size="small" disabled={isCategoryDisabled}>
+            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
+              Categoría
+            </Typography>
+            <Select value={categoryFilter} onChange={handleCategoryChange} displayEmpty>
+              <MenuItem value="all">Todas las categorias</MenuItem>
+              {categoryOptions.map((option) => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth size="small" disabled={isGlassDisabled}>
+            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
+              Vaso
+            </Typography>
+            <Select value={glassFilter} onChange={handleGlassChange} displayEmpty>
+              <MenuItem value="all">Todos los vasos</MenuItem>
+              {glassOptions.map((option) => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth size="small" disabled={isIngredientDisabled}>
+            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
+              Ingrediente
+            </Typography>
+            <Select value={ingredientFilter} onChange={handleIngredientChange} displayEmpty>
+              <MenuItem value="all">Todos los ingredientes</MenuItem>
+              {ingredientOptions.map((option) => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth size="small">
+            <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
+              Ordenar por
+            </Typography>
+            <Select value={sortOrder} onChange={handleSortChange} displayEmpty>
+              <MenuItem value="featured">Orden destacado</MenuItem>
+              <MenuItem value="name_asc">Nombre A-Z</MenuItem>
+              <MenuItem value="name_desc">Nombre Z-A</MenuItem>
+              <MenuItem value="ingredients_desc">Mas ingredientes</MenuItem>
+              <MenuItem value="ingredients_asc">Menos ingredientes</MenuItem>
+              <MenuItem value="random">Aleatorio</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Drawer>
     </div>
   );
 };
