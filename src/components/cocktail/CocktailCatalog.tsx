@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { CocktailCard } from './cocktail-card/CocktailCard';
 import Grid from '@mui/material/Grid';
-import { Category, Skill } from '../../interfaces/cocktailInterfaces';
+import { Skill } from '../../interfaces/cocktailInterfaces';
 import { Box, Button, Card, CardActionArea, CardActions, CardContent, Chip, Grow, Paper, Skeleton, Snackbar, Stack, Typography } from '@mui/material';
 import CardImage from './cocktail-card/CardImage';
 import Cardtitle from './cocktail-card/Cardtitle';
