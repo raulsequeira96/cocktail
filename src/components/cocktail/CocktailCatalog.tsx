@@ -69,7 +69,6 @@ const getInitialFavorites = (): FavoritesStorageValue => {
 
 const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) => {
   const cocktails: Skill[] = useSelector((state: RootState) => state.cocktail.cocktailsSearch);
-  const categories = useSelector((state: RootState) => state.cocktail.categories as Category);
   const searchTerm = useSelector((state: RootState) => state.cocktail.searchTerm);
   const alcoholFilter = useSelector((state: RootState) => state.cocktail.alcoholFilter);
   const categoryFilter = useSelector((state: RootState) => state.cocktail.categoryFilter);
