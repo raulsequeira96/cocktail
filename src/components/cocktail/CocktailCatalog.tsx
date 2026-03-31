@@ -3,17 +3,41 @@ import { RootState } from '../../redux/store';
 import { CocktailCard } from './cocktail-card/CocktailCard';
 import Grid from '@mui/material/Grid';
 import { Skill } from '../../interfaces/cocktailInterfaces';
-import { Box, Card, CardActionArea, CardActions, CardContent, Paper, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardActions, CardContent, Grow, Paper, Skeleton, Typography } from '@mui/material';
 import CardImage from './cocktail-card/CardImage';
 import Cardtitle from './cocktail-card/Cardtitle';
 import CardButton from './cocktail-card/CardButton';
 import { useStyles } from './styles';
 
+interface CocktailCatalogProps {
+  isLoading?: boolean;
+}
 
-const CocktailTable = () => {
+const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
   const cocktails: Skill[] = useSelector((state: RootState) => state.cocktail.cocktailsSearch);
   const classes = useStyles();
   const visibleCocktails = (cocktails || []).filter((cocktail) => Number(cocktail.id) !== -1);
+
+  if (isLoading) {
+    return (
+      <Grid container spacing={{ xs: 2, md: 3 }}>
+        {Array.from({ length: 8 }).map((_, idx) => (
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={idx}>
+            <Card className={classes.cardRoot} elevation={0}>
+              <Skeleton variant="rectangular" animation="wave" sx={{ height: { xs: 190, sm: 210 }, borderRadius: '18px 18px 0 0' }} />
+              <CardContent sx={{ pb: 1 }}>
+                <Skeleton animation="wave" height={30} width="80%" />
+                <Skeleton animation="wave" height={24} width="52%" />
+              </CardContent>
+              <CardActions sx={{ mt: 'auto', px: 2, pb: 2 }}>
+                <Skeleton animation="wave" variant="rounded" width={110} height={34} />
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    );
+  }
 
   if (!visibleCocktails.length) {
     return (
@@ -40,21 +64,25 @@ const CocktailTable = () => {
   return (
     <Box>
       <Grid container spacing={{ xs: 2, md: 3 }}>
-        {visibleCocktails.map((cocktail) => (
+        {visibleCocktails.map((cocktail, index) => (
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={cocktail.id}>
-            <CocktailCard skill={cocktail}>
-              <Card className={classes.cardRoot} elevation={0}>
-                <CardActionArea sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', height: '100%' }}>
-                  <CardImage />
-                  <CardContent sx={{ width: '100%', pb: 1.5 }}>
-                    <Cardtitle />
-                  </CardContent>
-                </CardActionArea>
-                <CardActions sx={{ mt: 'auto', px: 2, pb: 2 }}>
-                  <CardButton />
-                </CardActions>
-              </Card>
-            </CocktailCard>
+            <Grow in timeout={380 + index * 70}>
+              <Box>
+                <CocktailCard skill={cocktail}>
+                  <Card className={classes.cardRoot} elevation={0}>
+                    <CardActionArea sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', height: '100%' }}>
+                      <CardImage />
+                      <CardContent sx={{ width: '100%', pb: 1.5 }}>
+                        <Cardtitle />
+                      </CardContent>
+                    </CardActionArea>
+                    <CardActions sx={{ mt: 'auto', px: 2, pb: 2 }}>
+                      <CardButton />
+                    </CardActions>
+                  </Card>
+                </CocktailCard>
+              </Box>
+            </Grow>
           </Grid>
         ))}
       </Grid>

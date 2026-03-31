@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Box, Container, Stack, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Container, Fade, Stack, Typography } from '@mui/material';
 import { CocktailBar } from './CocktailBar';
 import CocktailCatalog from './CocktailCatalog';
 import { useDispatch } from 'react-redux';
@@ -10,15 +10,27 @@ import { useStyles } from './styles';
 const Cocktail = () => {
   const dispatch = useDispatch<any>();
   const classes = useStyles();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
 
     const execute = async () => {
-      await dispatch(fetchDataCocktail());
-      await dispatch(addCategory());
+      try {
+        await dispatch(fetchDataCocktail());
+        await dispatch(addCategory());
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
     };
 
     execute();
+
+    return () => {
+      isMounted = false;
+    };
   }, [dispatch]);
 
   return (
@@ -26,15 +38,21 @@ const Cocktail = () => {
       <CocktailBar />
       <Box className={classes.appShell}>
         <Container maxWidth="xl" className={classes.contentContainer}>
-          <Stack spacing={0.75} sx={{ mb: { xs: 2.5, md: 3.5 } }}>
-            <Typography variant="h4" className={classes.pageTitle}>
-              Descubri tu proximo cocktail
-            </Typography>
-            <Typography variant="body1" className={classes.pageSubtitle}>
-              Explora recetas por categoria, ingrediente o tipo de bebida, y encontra ideas para cualquier ocasion.
-            </Typography>
-          </Stack>
-          <CocktailCatalog />
+          <Fade in timeout={550}>
+            <Stack spacing={0.75} sx={{ mb: { xs: 2.5, md: 3.5 } }}>
+              <Typography variant="h4" className={classes.pageTitle}>
+                Descubri tu proximo cocktail
+              </Typography>
+              <Typography variant="body1" className={classes.pageSubtitle}>
+                Explora recetas por categoria, ingrediente o tipo de bebida, y encontra ideas para cualquier ocasion.
+              </Typography>
+            </Stack>
+          </Fade>
+          <Fade in timeout={800}>
+            <Box>
+              <CocktailCatalog isLoading={isLoading} />
+            </Box>
+          </Fade>
         </Container>
       </Box>
       <DialogCocktailDetails/>
