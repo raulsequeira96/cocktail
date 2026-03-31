@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, memo } from "react";
 
 import FavoriteBorderRoundedIcon from '@mui/icons-material/FavoriteBorderRounded';
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
@@ -17,7 +17,7 @@ interface CardButtonProps {
 
 const CardButton = ({ skillProps, isFavorite = false, onToggleFavorite, onShare }: CardButtonProps) => {
 
-  const { skill, handleDetailsCocktail } = useContext( CocktailCardContext );
+  const { skill, handleDetailsCocktail } = useContext(CocktailCardContext);
 
   let mySkill: Skill | {} = skill;
 
@@ -65,4 +65,4 @@ const CardButton = ({ skillProps, isFavorite = false, onToggleFavorite, onShare 
   )
 }
 
-export default CardButton
+export default memo(CardButton)

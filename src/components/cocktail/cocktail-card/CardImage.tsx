@@ -1,5 +1,5 @@
 import { CardMedia } from "@mui/material"
-import { useContext } from "react";
+import { useContext, memo } from "react";
 import { CocktailCardContext } from "./CocktailCard";
 import { useStyles } from "../styles";
 
@@ -8,7 +8,7 @@ const CardImage = ({ title, image }: { title?: string, image?: string }) => {
   const classes = useStyles();
   const mediaImage = image ? image : skill.image;
   const mediaTitle = title ? title : skill.title;
-  
+
   return (
     <CardMedia
       component="img"
@@ -19,4 +19,4 @@ const CardImage = ({ title, image }: { title?: string, image?: string }) => {
   )
 }
 
-export default CardImage
+export default memo(CardImage)

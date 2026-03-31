@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { CocktailCard } from './cocktail-card/CocktailCard';
@@ -96,38 +96,49 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
   const pagedCocktails = cocktailsToRender.slice(0, visibleCount);
   const canLoadMore = visibleCount < cocktailsToRender.length;
 
-  const applyDefaultFilters = () => {
+  const applyDefaultFilters = useCallback(() => {
     dispatch(setSkillSearch(''));
     dispatch(setAlcoholFilter('all'));
     dispatch(setCategoryFilter('all'));
     dispatch(setGlassFilter('all'));
     dispatch(setIngredientFilter('all'));
     dispatch(setSortOrder('featured'));
-  };
+  }, [dispatch]);
 
-  const activeFilterChips: Array<{ label: string; onDelete: () => void }> = [];
+  const clearSearch = useCallback(() => dispatch(setSkillSearch('')), [dispatch]);
+  const clearAlcohol = useCallback(() => dispatch(setAlcoholFilter('all')), [dispatch]);
+  const clearCategory = useCallback(() => dispatch(setCategoryFilter('all')), [dispatch]);
+  const clearGlass = useCallback(() => dispatch(setGlassFilter('all')), [dispatch]);
+  const clearIngredient = useCallback(() => dispatch(setIngredientFilter('all')), [dispatch]);
+  const clearSort = useCallback(() => dispatch(setSortOrder('featured')), [dispatch]);
 
-  if (searchTerm) {
-    activeFilterChips.push({ label: `Busqueda: ${searchTerm}`, onDelete: () => dispatch(setSkillSearch('')) });
-  }
-  if (alcoholFilter !== 'all') {
-    activeFilterChips.push({
-      label: alcoholFilter === 'alcoholic' ? 'Con alcohol' : 'Sin alcohol',
-      onDelete: () => dispatch(setAlcoholFilter('all')),
-    });
-  }
-  if (categoryFilter !== 'all') {
-    activeFilterChips.push({ label: `Categoria: ${categoryFilter}`, onDelete: () => dispatch(setCategoryFilter('all')) });
-  }
-  if (glassFilter !== 'all') {
-    activeFilterChips.push({ label: `Vaso: ${glassFilter}`, onDelete: () => dispatch(setGlassFilter('all')) });
-  }
-  if (ingredientFilter !== 'all') {
-    activeFilterChips.push({ label: `Ingrediente: ${ingredientFilter}`, onDelete: () => dispatch(setIngredientFilter('all')) });
-  }
-  if (sortOrder !== 'featured') {
-    activeFilterChips.push({ label: `Orden: ${sortOrder}`, onDelete: () => dispatch(setSortOrder('featured')) });
-  }
+  const activeFilterChips = useMemo(() => {
+    const chips: Array<{ label: string; onDelete: () => void }> = [];
+
+    if (searchTerm) {
+      chips.push({ label: `Busqueda: ${searchTerm}`, onDelete: clearSearch });
+    }
+    if (alcoholFilter !== 'all') {
+      chips.push({
+        label: alcoholFilter === 'alcoholic' ? 'Con alcohol' : 'Sin alcohol',
+        onDelete: clearAlcohol,
+      });
+    }
+    if (categoryFilter !== 'all') {
+      chips.push({ label: `Categoria: ${categoryFilter}`, onDelete: clearCategory });
+    }
+    if (glassFilter !== 'all') {
+      chips.push({ label: `Vaso: ${glassFilter}`, onDelete: clearGlass });
+    }
+    if (ingredientFilter !== 'all') {
+      chips.push({ label: `Ingrediente: ${ingredientFilter}`, onDelete: clearIngredient });
+    }
+    if (sortOrder !== 'featured') {
+      chips.push({ label: `Orden: ${sortOrder}`, onDelete: clearSort });
+    }
+
+    return chips;
+  }, [searchTerm, alcoholFilter, categoryFilter, glassFilter, ingredientFilter, sortOrder, clearSearch, clearAlcohol, clearCategory, clearGlass, clearIngredient, clearSort]);
 
   useEffect(() => {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify({ ids: favoriteIds, cocktails: favoriteCocktails }));
@@ -164,7 +175,7 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
     setVisibleCount(PAGE_SIZE);
   }, [cocktailsToRender.length]);
 
-  const handleToggleFavorite = (skill: Skill) => {
+  const handleToggleFavorite = useCallback((skill: Skill) => {
     setFavoriteIds((prevIds) => (prevIds.includes(skill.id)
       ? prevIds.filter((id) => id !== skill.id)
       : [...prevIds, skill.id]));
@@ -176,9 +187,9 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
 
       return [...prevFavorites, skill];
     });
-  };
+  }, []);
 
-  const handleShare = async (skill: Skill) => {
+  const handleShare = useCallback(async (skill: Skill) => {
     const shareText = `${skill.title} - ${skill.category}`;
 
     try {
@@ -197,7 +208,11 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
     } catch (error) {
       setShareMessage('No se pudo compartir este cocktail.');
     }
-  };
+  }, []);
+
+  const handleToggleFavoritesOnly = useCallback(() => {
+    setShowFavoritesOnly((prev) => !prev);
+  }, []);
 
   if (isLoading) {
     return (
@@ -283,7 +298,7 @@ const CocktailTable = ({ isLoading = false, onSurprise }: CocktailCatalogProps) 
           color={showFavoritesOnly ? 'primary' : 'default'}
           variant={showFavoritesOnly ? 'filled' : 'outlined'}
           label={showFavoritesOnly ? 'Mostrar todos' : 'Solo favoritos'}
-          onClick={() => setShowFavoritesOnly((prev) => !prev)}
+          onClick={handleToggleFavoritesOnly}
         />
       </Stack>
       <Grid container spacing={{ xs: 2, md: 3 }}>
