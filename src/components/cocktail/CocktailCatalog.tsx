@@ -17,17 +17,53 @@ interface CocktailCatalogProps {
 const FAVORITES_STORAGE_KEY = 'cocktail-studio-favorites';
 const PAGE_SIZE = 8;
 
+interface FavoritesStorageValue {
+  ids: number[];
+  cocktails: Skill[];
+}
+
+const getInitialFavorites = (): FavoritesStorageValue => {
+  try {
+    const storageValue = localStorage.getItem(FAVORITES_STORAGE_KEY);
+    if (!storageValue) {
+      return { ids: [], cocktails: [] };
+    }
+
+    const parsed = JSON.parse(storageValue);
+
+    if (Array.isArray(parsed)) {
+      if (parsed.every((item) => typeof item === 'number')) {
+        return { ids: parsed as number[], cocktails: [] };
+      }
+
+      const cocktails = parsed.filter((item) => item && typeof item === 'object' && typeof item.id === 'number') as Skill[];
+      return { ids: cocktails.map((cocktail) => cocktail.id), cocktails };
+    }
+
+    if (parsed && typeof parsed === 'object') {
+      const ids = Array.isArray(parsed.ids) ? parsed.ids.filter((item: unknown) => typeof item === 'number') as number[] : [];
+      const cocktails = Array.isArray(parsed.cocktails)
+        ? parsed.cocktails.filter((item: unknown) => item && typeof item === 'object' && typeof (item as Skill).id === 'number') as Skill[]
+        : [];
+
+      return {
+        ids: ids.length ? ids : cocktails.map((cocktail) => cocktail.id),
+        cocktails,
+      };
+    }
+
+    return { ids: [], cocktails: [] };
+  } catch (error) {
+    return { ids: [], cocktails: [] };
+  }
+};
+
 const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
   const cocktails: Skill[] = useSelector((state: RootState) => state.cocktail.cocktailsSearch);
   const classes = useStyles();
-  const [favoriteIds, setFavoriteIds] = useState<number[]>(() => {
-    try {
-      const storageValue = localStorage.getItem(FAVORITES_STORAGE_KEY);
-      return storageValue ? JSON.parse(storageValue) : [];
-    } catch (error) {
-      return [];
-    }
-  });
+  const initialFavorites = getInitialFavorites();
+  const [favoriteIds, setFavoriteIds] = useState<number[]>(initialFavorites.ids);
+  const [favoriteCocktails, setFavoriteCocktails] = useState<Skill[]>(initialFavorites.cocktails);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [shareMessage, setShareMessage] = useState('');
@@ -38,15 +74,42 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
   );
   const favoritesSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
   const cocktailsToRender = useMemo(
-    () => (showFavoritesOnly ? visibleCocktails.filter((cocktail) => favoritesSet.has(cocktail.id)) : visibleCocktails),
-    [showFavoritesOnly, visibleCocktails, favoritesSet],
+    () => (showFavoritesOnly ? favoriteCocktails.filter((cocktail) => favoritesSet.has(cocktail.id)) : visibleCocktails),
+    [showFavoritesOnly, favoriteCocktails, visibleCocktails, favoritesSet],
   );
   const pagedCocktails = cocktailsToRender.slice(0, visibleCount);
   const canLoadMore = visibleCount < cocktailsToRender.length;
 
   useEffect(() => {
-    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteIds));
-  }, [favoriteIds]);
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify({ ids: favoriteIds, cocktails: favoriteCocktails }));
+  }, [favoriteIds, favoriteCocktails]);
+
+  useEffect(() => {
+    if (!favoriteIds.length) {
+      setFavoriteCocktails([]);
+      return;
+    }
+
+    setFavoriteCocktails((prevFavorites) => {
+      const byId = new Map(prevFavorites.map((cocktail) => [cocktail.id, cocktail]));
+      let changed = false;
+
+      visibleCocktails.forEach((cocktail) => {
+        if (favoriteIds.includes(cocktail.id) && !byId.has(cocktail.id)) {
+          byId.set(cocktail.id, cocktail);
+          changed = true;
+        }
+      });
+
+      const nextFavorites = Array.from(byId.values()).filter((cocktail) => favoriteIds.includes(cocktail.id));
+
+      if (nextFavorites.length !== prevFavorites.length) {
+        changed = true;
+      }
+
+      return changed ? nextFavorites : prevFavorites;
+    });
+  }, [favoriteIds, visibleCocktails]);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -56,6 +119,14 @@ const CocktailTable = ({ isLoading = false }: CocktailCatalogProps) => {
     setFavoriteIds((prevIds) => (prevIds.includes(skill.id)
       ? prevIds.filter((id) => id !== skill.id)
       : [...prevIds, skill.id]));
+
+    setFavoriteCocktails((prevFavorites) => {
+      if (prevFavorites.some((item) => item.id === skill.id)) {
+        return prevFavorites.filter((item) => item.id !== skill.id);
+      }
+
+      return [...prevFavorites, skill];
+    });
   };
 
   const handleShare = async (skill: Skill) => {
