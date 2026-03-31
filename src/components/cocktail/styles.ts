@@ -113,7 +113,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       letterSpacing: 0.2,
       color: theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.text.primary,
       whiteSpace: 'nowrap',
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         display: 'block',
       },
       [theme.breakpoints.down('lg')]: {
