@@ -10,6 +10,7 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Drawer from '@mui/material/Drawer';
+import { useMediaQuery, useTheme } from '@mui/material';
 import type { PaletteMode } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
@@ -82,6 +83,8 @@ interface CocktailBarProps {
 export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, onSurprise, isLoading }) => {
   const classes: Clases = useStyles();
   const dispatch = useDispatch<any>();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [filtersHydrated, setFiltersHydrated] = useState(false);
   const [searchDraft, setSearchDraft] = useState('');
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -401,7 +404,7 @@ export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme, o
             <div className={classes.searchPanel}>
               <Box className={classes.searchMain}>
                 <InputBase
-                  placeholder="Buscar por nombre, ingrediente, categoria o vaso..."
+                  placeholder={isMobile ? 'Buscar...' : 'Buscar por nombre, ingrediente, categoria o vaso...'}
                   startAdornment={
                     <InputAdornment position="start" sx={{ color: 'inherit', ml: 0.5, mr: 0.25 }}>
                       <SearchIcon fontSize="small" />
