@@ -35,8 +35,24 @@ const ItemMenu = ({ toggleSubmenu, openSubmenu, classes, sectionTitle, subSectio
 
   return (
     <>
-      <ListItemButton onClick={event => toggleSubmenu(event, sectionTitle)}>
-        <ListItemText primary={sectionTitle} style={{ color: 'white', fontWeight: 'bold', fontSize: '1.8em' }} />
+      <ListItemButton
+        onClick={event => toggleSubmenu(event, sectionTitle)}
+        sx={{
+          py: 1.1,
+          px: 2,
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,0.08)',
+          },
+        }}
+      >
+        <ListItemText
+          primary={sectionTitle}
+          primaryTypographyProps={{
+            color: 'common.white',
+            fontWeight: 700,
+            fontSize: { xs: '1rem', sm: '1.06rem' },
+          }}
+        />
         {getSectionValue() ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
       <Collapse in={getSectionValue()} timeout="auto" unmountOnExit>
@@ -47,8 +63,20 @@ const ItemMenu = ({ toggleSubmenu, openSubmenu, classes, sectionTitle, subSectio
                 className={classes.nested}
                 key={index}
                 onClick={() => handleSubcategoryClick(sub, sectionTitle)} // Manejador de eventos para imprimir el nombre de la subcategoría
+                sx={{
+                  py: 0.75,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,255,255,0.08)',
+                  },
+                }}
               >
-                <ListItemText primary={sub} style={{ color: 'red', fontSize: '1em' }} />
+                <ListItemText
+                  primary={sub}
+                  primaryTypographyProps={{
+                    color: 'rgba(255,255,255,0.88)',
+                    fontSize: '0.95rem',
+                  }}
+                />
               </ListItemButton>
             )
           }

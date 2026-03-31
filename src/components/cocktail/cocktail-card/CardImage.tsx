@@ -6,12 +6,15 @@ import { useStyles } from "../styles";
 const CardImage = ({ title, image }: { title?: string, image?: string }) => {
   const { skill } = useContext( CocktailCardContext );
   const classes = useStyles();
+  const mediaImage = image ? image : skill.image;
+  const mediaTitle = title ? title : skill.title;
   
   return (
     <CardMedia
+      component="img"
       className={classes.cardMedia}
-      image={title ? title : skill.image}
-      title={image ? image : skill.title}
+      image={mediaImage}
+      alt={mediaTitle}
     />
   )
 }

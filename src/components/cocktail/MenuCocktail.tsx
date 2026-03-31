@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { List } from '@mui/material';
+import { List, ListSubheader } from '@mui/material';
 import ItemMenu from './ItemMenu';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
@@ -31,7 +31,23 @@ const MenuCocktail = ({ classes, sections }: MenuCocktailProps) => {
     <>
       {categories && Object.keys(categories).length > 0
         ? (
-          <List>
+          <List
+            subheader={
+              <ListSubheader
+                sx={{
+                  bgcolor: 'transparent',
+                  color: 'rgba(255,255,255,0.72)',
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Explorar por categoria
+              </ListSubheader>
+            }
+            sx={{ width: { xs: 280, sm: 320 }, pt: 0.5 }}
+          >
             {Object.keys(categories).map((sec: string) => (
               <ItemMenu
                 key={sec}

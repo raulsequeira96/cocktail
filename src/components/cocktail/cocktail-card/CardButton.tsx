@@ -20,8 +20,14 @@ const CardButton = (skillProps: Skill | {}) => {
   }
 
   return (
-    <Button size="small" color="primary" onClick={event => handleDetailsCocktail(mySkill as Skill)}>
-      Leer Mas
+    <Button
+      variant="contained"
+      size="small"
+      color="primary"
+      onClick={event => handleDetailsCocktail(mySkill as Skill)}
+      sx={{ px: 2.25, fontWeight: 700 }}
+    >
+      Ver detalle
     </Button>
   )
 }

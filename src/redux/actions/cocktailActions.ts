@@ -35,19 +35,19 @@ export const setSkillSearch = (value: string): CocktailAction => ({
 export const fetchDataCocktail = (uri: string = "search.php?f=a"): ThunkAction<void, RootState, unknown, Action<string>> => async dispatch => {
   try {
     const response = await axios.get(URL_MAIN + uri);
-    dispatch({ type: SET_ALL_SKILL_COCKTAIL, payload: { value: formatResponse(response.data.drinks) } });
+    dispatch({ type: SET_ALL_SKILL_COCKTAIL, payload: { value: formatResponse(response.data.drinks || []) } });
   } catch (error) {
     console.log("Ocurrio un error al obtener los cocktail: ", error);
   }
 };
 
-const formatResponse = (listCocktails: CocktailResponse[]) => {
+const formatResponse = (listCocktails: CocktailResponse[] = []) => {
   return listCocktails.map((cocktail: CocktailResponse) => ({
     id: cocktail.idDrink,
     title: cocktail.strDrink,
     price: 0,
     category: cocktail.strCategory,
-    description: cocktail.strInstructionsES,
+    description: cocktail.strInstructionsES || cocktail.strInstructions,
     image: cocktail.strDrinkThumb
   }));
 };
@@ -90,7 +90,6 @@ export const addCategory = () =>
   async (dispatch: any, getState: CocktailSkill) => {
     try {
       const list = await getCategory(); // Espera a que getCategory termine y devuelva su resultado
-      console.log(list);
       dispatch({ type: SET_ALL_CATEGORY_COCKTAIL, payload: { value: list } });
     } catch (error) {
       console.log("Ocurrio un error al añadir la categoria: ", error);

@@ -1,6 +1,7 @@
 import React from 'react';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -15,18 +16,6 @@ import { closeDetailsCocktail } from '../../redux/actions/cocktailActions';
 import { useStyles } from './styles';
 import CardMedia from '@mui/material/CardMedia';
 
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(2),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
-  },
-  icon_x: {
-    position: 'absolute'
-  }
-}));
-
 const DialogCocktailDetails = () => {
   const { open, details } = useSelector((state: RootState) => state.cocktail.dialog);
   const dispatch = useDispatch<any>();
@@ -38,44 +27,53 @@ const DialogCocktailDetails = () => {
 
   return (
     <>
-      <BootstrapDialog
+      <Dialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
-        maxWidth="lg"
+        maxWidth="md"
+        fullWidth
       >
-        <Grid container spacing={1}>
-          <Grid size={11}>
-            <DialogTitle id="customized-dialog-title">
-              {details?.title}
-            </DialogTitle>
-          </Grid>
-          <Grid size={1}>
-            <IconButton
-              aria-label="close"
-              onClick={handleClose}
-              className='icon_x'
-            >
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
+        <DialogTitle id="customized-dialog-title" sx={{ pr: 6, fontWeight: 800 }}>
+          {details?.title || 'Detalle del cocktail'}
+          <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom>
-            {details?.description}
-          </Typography>
-          <CardMedia
-            className={classes.cardMediaLong}
-            image={details?.image}
-            title={details?.title}
-          />
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <CardMedia
+                component="img"
+                className={classes.cardMediaLong}
+                image={details?.image || ''}
+                alt={details?.title || 'Cocktail'}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                {details?.description || 'No hay descripcion disponible para este cocktail.'}
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Chip
+                  color="primary"
+                  variant="outlined"
+                  label={details?.category ? `Categoria: ${details.category}` : 'Categoria no disponible'}
+                />
+              </Box>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose}>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button autoFocus variant="contained" onClick={handleClose}>
             Cerrar
           </Button>
         </DialogActions>
-      </BootstrapDialog>
+      </Dialog>
     </>
   );
 }

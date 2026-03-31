@@ -4,6 +4,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import InputAdornment from '@mui/material/InputAdornment';
+import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -44,25 +45,27 @@ export const CocktailBar: React.FC = () => {
 
   return (
     <div className={classes.grow}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={toggleDrawer(true)}
-            style={{ marginRight: '8px' }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
-            Cocktail App yeah
-          </Typography>
+      <AppBar position="sticky" className={classes.appBar} elevation={0}>
+        <Toolbar className={classes.appToolbar}>
+          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer(true)}
+              className={classes.menuButton}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography className={classes.title} variant="h5" component="h1" noWrap>
+              Cocktail Studio
+            </Typography>
+          </Box>
           <div className={classes.search}>
             <InputBase
-              placeholder="Search…"
+              placeholder="Buscar cocktail..."
               startAdornment={
-                <InputAdornment position="start" style={{ color: '#fff', padding: '8px' }}>
+                <InputAdornment position="start" sx={{ color: '#fff', ml: 0.5, mr: 0.25 }}>
                   <SearchIcon fontSize="small" />
                 </InputAdornment>
               }
@@ -81,6 +84,7 @@ export const CocktailBar: React.FC = () => {
         anchor="left"
         open={isDrawerOpen}
         onClose={toggleDrawer(false)}
+        ModalProps={{ keepMounted: true }}
         classes={{ paper: classes.drawerPaper }}
       >
         <div

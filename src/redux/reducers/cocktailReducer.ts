@@ -3,22 +3,8 @@ import { CocktailSkill } from "../../interfaces/cocktailInterfaces";
 import { CocktailAction } from "../actions/cocktailActions"
 
 const initialState: CocktailSkill = {
-  cocktails: [{
-    id: -1,
-    title: "",
-    price: -1,
-    category: "",
-    description: "",
-    image: ""
-  }],
-  cocktailsSearch: [{
-    id: -1,
-    title: "",
-    price: -1,
-    category: "",
-    description: "",
-    image: ""
-  }],
+  cocktails: [],
+  cocktailsSearch: [],
   categories: {},
   sections: {},
   dialog: { open: false },
@@ -27,7 +13,6 @@ const initialState: CocktailSkill = {
 export const cocktailReducer = (state: CocktailSkill = initialState, action: CocktailAction): CocktailSkill => {
   const { type, payload } = action;
   const { cocktails } = state;
-  console.log("El estado global es: ", state);
   switch (type) {
     case SET_SKILL_COCKTAIL:
       return {
