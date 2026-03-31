@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Container, Fade, Stack, Typography } from '@mui/material';
+import type { PaletteMode } from '@mui/material/styles';
 import { CocktailBar } from './CocktailBar';
 import CocktailCatalog from './CocktailCatalog';
 import { useDispatch } from 'react-redux';
@@ -7,7 +8,12 @@ import { fetchDataCocktail, addCategory } from "../../redux/actions/cocktailActi
 import DialogCocktailDetails from "./DialogCocktailDetails";
 import { useStyles } from './styles';
 
-const Cocktail = () => {
+interface CocktailProps {
+  mode: PaletteMode;
+  onToggleTheme: () => void;
+}
+
+const Cocktail = ({ mode, onToggleTheme }: CocktailProps) => {
   const dispatch = useDispatch<any>();
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +41,7 @@ const Cocktail = () => {
 
   return (
     <>
-      <CocktailBar />
+      <CocktailBar mode={mode} onToggleTheme={onToggleTheme} />
       <Box className={classes.appShell}>
         <Container maxWidth="xl" className={classes.contentContainer}>
           <Fade in timeout={550}>

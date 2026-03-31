@@ -41,14 +41,14 @@ const ItemMenu = ({ toggleSubmenu, openSubmenu, classes, sectionTitle, subSectio
           py: 1.1,
           px: 2,
           '&:hover': {
-            backgroundColor: 'rgba(255,255,255,0.08)',
+            backgroundColor: 'action.hover',
           },
         }}
       >
         <ListItemText
           primary={sectionTitle}
           primaryTypographyProps={{
-            color: 'common.white',
+            color: 'text.primary',
             fontWeight: 700,
             fontSize: { xs: '1rem', sm: '1.06rem' },
           }}
@@ -66,14 +66,14 @@ const ItemMenu = ({ toggleSubmenu, openSubmenu, classes, sectionTitle, subSectio
                 sx={{
                   py: 0.75,
                   '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.08)',
+                    backgroundColor: 'action.hover',
                   },
                 }}
               >
                 <ListItemText
                   primary={sub}
                   primaryTypographyProps={{
-                    color: 'rgba(255,255,255,0.88)',
+                    color: 'text.secondary',
                     fontSize: '0.95rem',
                   }}
                 />

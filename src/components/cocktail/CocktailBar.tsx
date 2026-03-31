@@ -5,9 +5,12 @@ import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import InputAdornment from '@mui/material/InputAdornment';
 import Box from '@mui/material/Box';
+import type { PaletteMode } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import Drawer from '@mui/material/Drawer';
 import { useStyles } from './styles';
 import MenuCocktail from './MenuCocktail';
@@ -16,7 +19,12 @@ import { RootState } from '../../redux/store';
 import { setSkillSearch } from '../../redux/actions/cocktailActions';
 import { Clases, SubmenuState } from '../../interfaces/cocktailInterfaces';
 
-export const CocktailBar: React.FC = () => {
+interface CocktailBarProps {
+  mode: PaletteMode;
+  onToggleTheme: () => void;
+}
+
+export const CocktailBar: React.FC<CocktailBarProps> = ({ mode, onToggleTheme }) => {
   const classes: Clases = useStyles();
   const dispatch = useDispatch<any>();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -47,7 +55,7 @@ export const CocktailBar: React.FC = () => {
     <div className={classes.grow}>
       <AppBar position="sticky" className={classes.appBar} elevation={0}>
         <Toolbar className={classes.appToolbar}>
-          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
+          <Box className={classes.toolbarLeft}>
             <IconButton
               edge="start"
               color="inherit"
@@ -57,27 +65,46 @@ export const CocktailBar: React.FC = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography className={classes.title} variant="h5" component="h1" noWrap>
-              Cocktail Studio
-            </Typography>
+            <Box className={classes.brandIdentity}>
+              <Box
+                component="img"
+                src="/coctel.png"
+                alt="Logo Cocktail Studio"
+                className={classes.brandLogo}
+              />
+              <Typography className={classes.title} variant="h5" component="h1">
+                Cocktail Studio
+              </Typography>
+            </Box>
           </Box>
-          <div className={classes.search}>
-            <InputBase
-              placeholder="Buscar cocktail..."
-              startAdornment={
-                <InputAdornment position="start" sx={{ color: '#fff', ml: 0.5, mr: 0.25 }}>
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              }
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={searchHandleChange}
-            />
-
-          </div>
+          <Box className={classes.toolbarCenter}>
+            <div className={classes.search}>
+              <InputBase
+                placeholder="Buscar cocktail..."
+                startAdornment={
+                  <InputAdornment position="start" sx={{ color: 'inherit', ml: 0.5, mr: 0.25 }}>
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                }
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={searchHandleChange}
+              />
+            </div>
+          </Box>
+          <Box className={classes.toolbarRight}>
+            <IconButton
+              color="inherit"
+              aria-label={mode === 'dark' ? 'activar modo claro' : 'activar modo oscuro'}
+              onClick={onToggleTheme}
+              className={classes.themeToggleButton}
+            >
+              {mode === 'dark' ? <LightModeRoundedIcon /> : <DarkModeRoundedIcon />}
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer
